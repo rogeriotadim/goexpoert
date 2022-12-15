@@ -75,9 +75,16 @@ func GetCotacao() (cotacao Cotacao, err error){
 }
 
 func main()  {
-	cotacao, err := GetCotacao()
+	http.HandleFunc("/", HandlerGetCotacao)
+	http.ListenAndServe(":" + PORT, nil)
+}
+
+func HandlerGetCotacao(w http.ResponseWriter, r *http.Request){
+cotacao, err := GetCotacao()
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	fmt.Println(cotacao)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(cotacao)
 }
