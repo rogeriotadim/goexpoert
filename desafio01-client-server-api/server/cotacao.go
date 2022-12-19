@@ -1,6 +1,23 @@
 package server
 
-import "github.com/google/uuid"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+
+	"github.com/google/uuid"
+)
+
+const (
+	URL_ECONOMIA="https://economia.awesomeapi.com.br/json/last/"
+	CODE="USD"
+	CODEIN="BRL"
+	EP="cotacao"
+	PORT="8080"
+)
+
 
 type CotacaoDtoOut struct {
 	Valor string `json:"valor"`
@@ -40,4 +57,31 @@ func NewCotacao(code string, codein string, name string, high string, low string
 		CreateDate: create_date,
 	}
 	return cotacao
+}
+
+func GetCotacao() (cotacaoOut CotacaoDtoOut, err error){
+	ep := URL_ECONOMIA + CODE + "-" + CODEIN
+	var cotacao Cotacao
+	request, err := http.Get(ep)
+	if err != nil {
+		return cotacaoOut, errors.New("request failed") 
+	}
+	defer request.Body.Close()
+	response, err := io.ReadAll(request.Body)
+	if err != nil {
+		return cotacaoOut, fmt.Errorf("get response error: %v", err)
+	}
+	var data Symbol
+	err = json.Unmarshal(response, &data)
+	if err != nil {
+		return cotacaoOut, fmt.Errorf("parse response error: %v", err)
+	}
+	data.Symbol.Id = uuid.New().String()
+	cotacao = data.Symbol
+	err = SaveCotacao(cotacao)
+	if err != nil {
+		return cotacaoOut, fmt.Errorf("persist cotacao error: %v", err)
+	}
+	cotacaoOut.Valor = cotacao.Bid
+	return
 }
