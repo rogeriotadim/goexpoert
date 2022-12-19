@@ -2,6 +2,10 @@ package server
 
 import "github.com/google/uuid"
 
+type CotacaoDtoOut struct {
+	Valor string `json:"valor"`
+}
+
 type Symbol struct {
 	Symbol Cotacao `json:"USDBRL"`
 }

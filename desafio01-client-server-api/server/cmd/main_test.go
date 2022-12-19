@@ -9,7 +9,7 @@ func TestGetCotacaoFromWeb(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Erro: %v", err)
 	}
-	if cotacao.CodeIn != CODEIN {
-		t.Errorf("Expected %s but got %s", CODEIN, cotacao.CodeIn)
+	if cotacao.Valor == "" {
+		t.Error("Expected a value but got empty")
 	}
 }
