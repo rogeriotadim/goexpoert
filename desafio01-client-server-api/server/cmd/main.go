@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/rogeriotadim/goexpoert/desafio01-client-server-api/server"
 )
 
 const (
@@ -18,42 +20,8 @@ const (
 	PORT="8080"
 )
 
-type Symbol struct {
-	Symbol Cotacao `json:"USDBRL"`
-}
-type Cotacao struct {
-	Id string  `json:"id"`
-	Code string `json:"code"`
-	CodeIn string `json:"codein"`
-	Name string `json:"name"`
-	High string `json:"high"`
-	Low string `json:"low"`
-	VarBid string `json:"varBid"`
-	PctChange string `json:"pctChange"`
-	Bid string `json:"bid"`
-	Ask string `json:"ask"`
-	Timestamp string `json:"timestamp"`
-	CreateDate string `json:"create_date"`
-}
 
-func NewCotacao(code string, codein string, name string, high string, low string, varBid string, pctChange string, bid string, ask string, timestamp string, create_date string) (cotacao Cotacao) {
-	cotacao = Cotacao {
-		Code: code,
-		CodeIn: codein,
-		Name: name,
-		High: high,
-		Low: low,
-		VarBid: varBid,
-		PctChange: pctChange,
-		Bid: bid,
-		Ask: ask,
-		Timestamp: timestamp,
-		CreateDate: create_date,
-	}
-	return cotacao
-}
-
-func GetCotacao() (cotacao Cotacao, err error){
+func GetCotacao() (cotacao server.Cotacao, err error){
 	ep := URL_ECONOMIA + CODE + "-" + CODEIN
 	request, err := http.Get(ep)
 	if err != nil {
@@ -64,23 +32,27 @@ func GetCotacao() (cotacao Cotacao, err error){
 	if err != nil {
 		return cotacao, fmt.Errorf("get response error: %v", err)
 	}
-	var data Symbol
+	var data server.Symbol
 	err = json.Unmarshal(response, &data)
 	if err != nil {
 		return cotacao, fmt.Errorf("parse response error: %v", err)
 	}
 	data.Symbol.Id = uuid.New().String()
 	cotacao = data.Symbol
+	err = server.SaveCotacao(cotacao)
+	if err != nil {
+		return cotacao, fmt.Errorf("persist cotacao error: %v", err)
+	}
 	return
 }
 
 func main()  {
 	http.HandleFunc("/", HandlerGetCotacao)
-	http.ListenAndServe(":" + PORT, nil)
+	log.Fatal(http.ListenAndServe(":" + PORT, nil))
 }
 
 func HandlerGetCotacao(w http.ResponseWriter, r *http.Request){
-cotacao, err := GetCotacao()
+	cotacao, err := GetCotacao()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

@@ -1,8 +1,6 @@
-package main
+package server
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestNewCotacao(t *testing.T) {
 	expectedCreateDate := "2022-12-15 14:51:00"
@@ -22,14 +20,7 @@ func TestNewCotacao(t *testing.T) {
 	if cotacao.CreateDate != expectedCreateDate {
 		t.Errorf("Expected %s but got %s", expectedCreateDate, cotacao.CreateDate)
 	}
-}
-
-func TestGetCotacaoFromWeb(t *testing.T) {
-	cotacao, err := GetCotacao()
-	if err != nil {
-		t.Fatalf("Erro: %v", err)
-	}
-	if cotacao.CodeIn != CODEIN {
-		t.Errorf("Expected %s but got %s", CODEIN, cotacao.CodeIn)
+	if cotacao.Id == "" {
+		t.Error("Expected Id not null")
 	}
 }
