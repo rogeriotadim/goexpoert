@@ -1,6 +1,10 @@
 package server
 
-import "testing"
+import (
+	"context"
+	"testing"
+	"time"
+)
 
 func TestSaveCotacao(t *testing.T) {
 	cotacao := NewCotacao(
@@ -16,7 +20,11 @@ func TestSaveCotacao(t *testing.T) {
 		"1671124497",
 		"2022-12-15 14:51:33",
 	)
-	err := SaveCotacao(cotacao)
+	ctxParent := context.Background()
+	ctxDB, cancelDB := context.WithTimeout(ctxParent, time.Millisecond * 10)
+	defer cancelDB()
+
+	err := SaveCotacao(ctxDB, cotacao)
 	if err != nil {
 		t.Fatalf("Erro: %v", err)
 	}

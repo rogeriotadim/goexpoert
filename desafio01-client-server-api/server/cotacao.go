@@ -1,11 +1,13 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -60,9 +62,21 @@ func NewCotacao(code string, codein string, name string, high string, low string
 }
 
 func GetCotacao() (cotacaoOut CotacaoDtoOut, err error){
+	ctxParent := context.Background()
+	ctx, cancel := context.WithTimeout(ctxParent, time.Millisecond * 200)
+	ctxDB, cancelDB := context.WithTimeout(ctxParent, time.Millisecond * 10)
+	defer cancel()
+	defer cancelDB()
+
 	ep := URL_ECONOMIA + CODE + "-" + CODEIN
-	var cotacao Cotacao
-	request, err := http.Get(ep)
+	req, err := http.NewRequestWithContext(ctx, "GET", ep, nil)
+	if err != nil {
+		return
+	}
+	request, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return
+	}
 	if err != nil {
 		return cotacaoOut, errors.New("request failed") 
 	}
@@ -77,8 +91,8 @@ func GetCotacao() (cotacaoOut CotacaoDtoOut, err error){
 		return cotacaoOut, fmt.Errorf("parse response error: %v", err)
 	}
 	data.Symbol.Id = uuid.New().String()
-	cotacao = data.Symbol
-	err = SaveCotacao(cotacao)
+	cotacao := data.Symbol
+	err = SaveCotacao(ctxDB, cotacao)
 	if err != nil {
 		return cotacaoOut, fmt.Errorf("persist cotacao error: %v", err)
 	}

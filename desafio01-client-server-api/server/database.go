@@ -1,22 +1,29 @@
 package server
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func SaveCotacao(cotacao Cotacao) (err error) {
-	// db, err := sql.Open("sqlite3", "./db/cotacao.db")
-	// if err != nil {
-	// 	return err
-	// }
-	// defer db.Close()
-	// err = persist(db, &cotacao)
-	// if err != nil {
-	// 	return err
-	// }
-	return nil
+func SaveCotacao(ctx context.Context, cotacao Cotacao) (err error) {
+	select {
+	case <-ctx.Done():
+		return errors.New("symbol persisting cancelled. Timeout reached")
+	default:
+		db, err := sql.Open("sqlite3", "./db/cotacao.db")
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+		err = persist(db, &cotacao)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 }
 
 func persist(db *sql.DB, cotacao *Cotacao) (err error) {
