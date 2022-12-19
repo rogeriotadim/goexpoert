@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/rogeriotadim/goexpoert/desafio01-client-server-api/server"
 )
 
 const (
@@ -19,7 +21,7 @@ const (
 )
 
 
-func GetCotacao() (cotacao Cotacao, err error){
+func GetCotacao() (cotacao server.Cotacao, err error){
 	ep := URL_ECONOMIA + CODE + "-" + CODEIN
 	request, err := http.Get(ep)
 	if err != nil {
@@ -30,14 +32,14 @@ func GetCotacao() (cotacao Cotacao, err error){
 	if err != nil {
 		return cotacao, fmt.Errorf("get response error: %v", err)
 	}
-	var data Symbol
+	var data server.Symbol
 	err = json.Unmarshal(response, &data)
 	if err != nil {
 		return cotacao, fmt.Errorf("parse response error: %v", err)
 	}
 	data.Symbol.Id = uuid.New().String()
 	cotacao = data.Symbol
-	err = SaveCotacao(cotacao)
+	err = server.SaveCotacao(cotacao)
 	if err != nil {
 		return cotacao, fmt.Errorf("persist cotacao error: %v", err)
 	}
@@ -46,7 +48,7 @@ func GetCotacao() (cotacao Cotacao, err error){
 
 func main()  {
 	http.HandleFunc("/", HandlerGetCotacao)
-	http.ListenAndServe(":" + PORT, nil)
+	log.Fatal(http.ListenAndServe(":" + PORT, nil))
 }
 
 func HandlerGetCotacao(w http.ResponseWriter, r *http.Request){
