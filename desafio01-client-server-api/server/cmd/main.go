@@ -47,7 +47,7 @@ func GetCotacao() (cotacao server.Cotacao, err error){
 }
 
 func main()  {
-	http.HandleFunc("/", HandlerGetCotacao)
+	http.HandleFunc("/cotacao", HandlerGetCotacao)
 	log.Fatal(http.ListenAndServe(":" + PORT, nil))
 }
 
