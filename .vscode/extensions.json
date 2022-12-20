@@ -1,7 +1,6 @@
 {
   "recommendations": [
     "dracula-theme.theme-dracula",
-    "esbenp.prettier-vscode",
     "pkief.material-icon-theme",
     "golang.go"
 
