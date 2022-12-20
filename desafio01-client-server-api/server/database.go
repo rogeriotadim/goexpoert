@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func SaveCotacao(ctx context.Context, cotacao Cotacao) (err error) {
+	log.Println("####### - SaveCotacao")
 	select {
 	case <-ctx.Done():
 		return errors.New("symbol persisting cancelled. Timeout reached")
