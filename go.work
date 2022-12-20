@@ -1,0 +1,4 @@
+go 1.19
+
+use ./desafio01-client-server-api/server
+use ./desafio01-client-server-api/client
