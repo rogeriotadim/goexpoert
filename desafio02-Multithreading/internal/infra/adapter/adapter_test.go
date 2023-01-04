@@ -10,7 +10,7 @@ import (
 	"github.com/rogeriotadim/goexpoert/desafio02-Multithreading/internal/infra"
 )
 
-const expected = "02206-000"
+const expected = "01040-000"
 const expectedTimeout = "context deadline exceeded"
 const urlApiCep = "https://cdn.apicep.com/file/apicep/" + expected + ".json"
 const urlViaCep = "http://viacep.com.br/ws/" + expected + "/json"
