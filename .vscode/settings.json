@@ -29,7 +29,10 @@
   "prettier.semi": false,
   "[go]": {
     "editor.defaultFormatter": "golang.go"
-  }
+  },
+  
+  "go.testEnvFile": "/go/src/.env"
 
   // terminal
 }
+
